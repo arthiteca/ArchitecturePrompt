@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana — Быстрый старт</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        dark: { 950: '#0b0f19', 900: '#111827', 800: '#1f2937', 700: '#374151' },
+                        banana: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; }
+
+        /* Animated gradient bg */
+        .hero-glow {
+            position: fixed; top: -40%; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Scenario cards */
+        .scenario-card {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid #374151;
+            border-radius: 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scenario-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            opacity: 0;
+            transition: opacity 0.35s;
+        }
+
+        .scenario-card:hover {
+            border-color: rgba(245, 158, 11, 0.4);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(245, 158, 11, 0.1);
+        }
+
+        .scenario-card:hover::before { opacity: 1; }
+
+        .scenario-card:hover .card-icon {
+            transform: scale(1.1) rotate(-3deg);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+        }
+
+        .card-icon {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Copy button */
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(2rem);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Tag pills */
+        .pill {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #374151;
+            background: rgba(31, 41, 55, 0.6);
+            font-size: 0.7rem; font-weight: 600;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start px-6 py-12 relative">
+
+    <!-- Background glow -->
+    <div class="hero-glow"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 w-full max-w-6xl">
+
+        <!-- HEADER -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center mb-6 relative">
+                <div class="w-20 h-20 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-950 text-4xl shadow-[0_0_40px_rgba(245,158,11,0.35)]">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+            </div>
+            <h1 class="text-5xl font-black text-white tracking-tight mb-3">
+                Быстрый <span class="text-banana-500">Старт</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                Изучите рекомендации и используйте готовые сценарии для быстрого старта
+            </p>
+        </div>
+
+        <!-- RECOMMENDATIONS SECTION -->
+        <div class="mb-16">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center mb-4">
+                    <div class="w-14 h-14 bg-banana-500 rounded-xl flex items-center justify-center text-dark-950 text-2xl shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-black text-white mb-2">
+                    Рекомендации по <span class="text-banana-500">составлению промптов</span>
+                </h2>
+                <p class="text-gray-400 text-sm max-w-xl mx-auto">
+                    Лучшие практики для создания эффективных промптов архитектурной визуализации
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Recommendation 1 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-extrabold text-white mb-2">Будьте конкретны</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                Используйте точные описания вместо общих фраз. Вместо "красивое здание" лучше указать "современное здание из стекла и бетона с минималистичным фасадом".
+                            </p>
+                            <div class="bg-dark-800 border border-dark-700 rounded-lg p-3 relative group">
+                                <pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono pr-10">"современное здание из стекла и бетона с минималистичным фасадом"</pre>
+                                <button onclick="copyExample('example-1')" class="absolute top-2 right-2 bg-banana-500 hover:bg-banana-400 text-dark-900 p-1.5 rounded text-xs transition-all hover:scale-110">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 2 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-extrabold text-white mb-2">Детализируйте освещение</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                Указывайте время суток, направление света и характер теней. Например: "закатное освещение, солнце слева, длинные драматические тени".
+                            </p>
+                            <div class="bg-dark-800 border border-dark-700 rounded-lg p-3 relative group">
+                                <pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono pr-10">"закатное освещение, солнце слева, длинные драматические тени"</pre>
+                                <button onclick="copyExample('example-2')" class="absolute top-2 right-2 bg-banana-500 hover:bg-banana-400 text-dark-900 p-1.5 rounded text-xs transition-all hover:scale-110">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 3 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-cubes"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-white mb-2">Описывайте материалы</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Детализируйте текстуры и материалы поверхностей. Укажите тип покрытия земли, отделку фасада, материалы мебели и ландшафта.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 4 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-white mb-2">Учитывайте сезон и погоду</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Сезон и погода влияют на атмосферу сцены. Зимний снег, осенние листья, летняя зелень — все это создает нужное настроение.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 5 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-extrabold text-white mb-2">Детализируйте людей</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                Если добавляете людей, опишите их действия и одежду. Например: "взрослые идут с детьми, дети играют, все одеты по погоде".
+                            </p>
+                            <div class="bg-dark-800 border border-dark-700 rounded-lg p-3 relative group">
+                                <pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono pr-10">"взрослые идут с детьми, дети играют, все одеты по погоде"</pre>
+                                <button onclick="copyExample('example-5')" class="absolute top-2 right-2 bg-banana-500 hover:bg-banana-400 text-dark-900 p-1.5 rounded text-xs transition-all hover:scale-110">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 6 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-extrabold text-white mb-2">Указывайте, чего избегать</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                Используйте поле "avoid" для исключения нежелательных элементов: "избегай сдвига камеры, изменения угла, артефактов 3D-рендера".
+                            </p>
+                            <div class="bg-dark-800 border border-dark-700 rounded-lg p-3 relative group">
+                                <pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono pr-10">"избегай сдвига камеры, изменения угла, артефактов 3D-рендера"</pre>
+                                <button onclick="copyExample('example-6')" class="absolute top-2 right-2 bg-banana-500 hover:bg-banana-400 text-dark-900 p-1.5 rounded text-xs transition-all hover:scale-110">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 7 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-extrabold text-white mb-2">Технические параметры</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                Указывайте параметры камеры и качество: "f/8, ISO 100, архитектурная фотография, 8K, гиперреалистично".
+                            </p>
+                            <div class="bg-dark-800 border border-dark-700 rounded-lg p-3 relative group">
+                                <pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono pr-10">"f/8, ISO 100, архитектурная фотография, 8K, гиперреалистично"</pre>
+                                <button onclick="copyExample('example-7')" class="absolute top-2 right-2 bg-banana-500 hover:bg-banana-400 text-dark-900 p-1.5 rounded text-xs transition-all hover:scale-110">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation 8 -->
+                <div class="bg-dark-900/60 border border-dark-700 rounded-2xl p-6 backdrop-blur-sm">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-10 h-10 bg-banana-500/20 rounded-lg flex items-center justify-center text-banana-500 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-magic"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-white mb-2">Для Reconstruct: сохраняйте геометрию</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Всегда подчеркивайте сохранение исходной геометрии скетча. Референс используется только для материалов и стиля, не для изменения структуры.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Additional Tips -->
+            <div class="mt-8 bg-banana-500/10 border border-banana-500/30 rounded-2xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-banana-500 rounded-lg flex items-center justify-center text-dark-950 text-lg flex-shrink-0">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-white mb-3">Дополнительные советы</h3>
+                        <ul class="space-y-2 text-gray-300 text-sm">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-banana-500 mt-1 text-xs"></i>
+                                <span>Начинайте с простых сценариев и постепенно усложняйте</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-banana-500 mt-1 text-xs"></i>
+                                <span>Используйте готовые сценарии как основу и адаптируйте под свои задачи</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-banana-500 mt-1 text-xs"></i>
+                                <span>Экспериментируйте с комбинациями параметров для уникальных результатов</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-banana-500 mt-1 text-xs"></i>
+                                <span>Сохраняйте успешные конфигурации для повторного использования</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENARIOS SECTION -->
+        <div class="mt-16 mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-white mb-2">
+                    Готовые <span class="text-banana-500">сценарии</span>
+                </h2>
+                <p class="text-gray-400 text-sm max-w-xl mx-auto">
+                    Выберите готовый промпт для быстрого старта
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Scenario 1: Простой текстовый промпт - Летний день -->
+                <div class="scenario-card p-6 flex flex-col gap-4" onclick="copySimplePrompt('simple-summer-day')">
+                    <div class="flex items-start justify-between">
+                        <div class="card-icon w-12 h-12 bg-banana-500 rounded-xl flex items-center justify-center text-dark-950 text-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <i class="fa-solid fa-copy text-gray-500 text-sm mt-2"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-white mb-2">Летний солнечный день</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                            Простой текстовый промпт для создания фотореалистичного рендера летнего дня
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="pill"><i class="fa-solid fa-file-text text-banana-500"></i> Текстовый</span>
+                            <span class="pill"><i class="fa-solid fa-sun text-yellow-400"></i> Лето</span>
+                            <span class="pill"><i class="fa-solid fa-cube text-purple-400"></i> Рендер</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-dark-700">
+                        <span class="text-xs font-bold text-banana-500">Простой промпт</span>
+                    </div>
+                </div>
+
+                <!-- Scenario 2: Простой текстовый промпт - Зимний вечер -->
+                <div class="scenario-card p-6 flex flex-col gap-4" onclick="copySimplePrompt('simple-winter-evening')">
+                    <div class="flex items-start justify-between">
+                        <div class="card-icon w-12 h-12 bg-banana-500 rounded-xl flex items-center justify-center text-dark-950 text-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                            <i class="fa-regular fa-snowflake"></i>
+                        </div>
+                        <i class="fa-solid fa-copy text-gray-500 text-sm mt-2"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-white mb-2">Зимний вечер</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                            Атмосферный промпт для зимнего вечера с освещением и снегом
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="pill"><i class="fa-solid fa-file-text text-banana-500"></i> Текстовый</span>
+                            <span class="pill"><i class="fa-regular fa-snowflake text-blue-400"></i> Зима</span>
+                            <span class="pill"><i class="fa-solid fa-house-chimney-window text-orange-400"></i> Вечер</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-dark-700">
+                        <span class="text-xs font-bold text-banana-500">Простой промпт</span>
+                    </div>
+                </div>
+
+                <!-- Scenario 3: JSON конфигурация - Полный сценарий -->
+                <div class="scenario-card p-6 flex flex-col gap-4" onclick="copyScenario('context-summer-day')">
+                    <div class="flex items-start justify-between">
+                        <div class="card-icon w-12 h-12 bg-banana-500 rounded-xl flex items-center justify-center text-dark-950 text-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <i class="fa-solid fa-copy text-gray-500 text-sm mt-2"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-white mb-2">Полная JSON конфигурация</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                            Готовая JSON конфигурация для Pro Context с детальными настройками
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="pill"><i class="fa-solid fa-code text-banana-500"></i> JSON</span>
+                            <span class="pill"><i class="fa-solid fa-sun text-yellow-400"></i> Лето</span>
+                            <span class="pill"><i class="fa-solid fa-cube text-purple-400"></i> Pro Context</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-dark-700">
+                        <span class="text-xs font-bold text-banana-500">JSON конфигурация</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BACK TO HOME -->
+        <div class="text-center">
+            <a href="index.html" class="inline-flex items-center gap-3 px-6 py-3 bg-dark-800 border border-dark-700 rounded-xl text-gray-300 hover:text-white hover:border-banana-500/50 transition-all duration-200 no-underline">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="font-bold">Вернуться на главную</span>
+            </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="text-center mt-12">
+            <p class="text-gray-600 text-xs font-medium tracking-wide">
+                <i class="fa-solid fa-bolt text-banana-500/50 mr-1"></i>
+                NANO BANANA STUDIO — Быстрый старт
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Промпт скопирован в буфер обмена!</span>
+    </div>
+
+    <script>
+        // Scenario definitions
+        const scenarios = {
+            'context-summer-day': {
+                tool: 'Pro Context',
+                config: {
+                    mode: 'render',
+                    season: 'summer',
+                    time: 'day',
+                    weather: 'sunny',
+                    sun: 'left',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'wood benches, metal frames',
+                    matGround: 'modern pavement, clean tiles, grass lawn',
+                    matLandscape: 'green trees, lush bushes, manicured lawn'
+                }
+            },
+            'context-winter-evening': {
+                tool: 'Pro Context',
+                config: {
+                    mode: 'render',
+                    season: 'winter',
+                    time: 'evening',
+                    weather: 'snow',
+                    sun: 'none',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'concrete benches, plastic details',
+                    matGround: 'snow covered path, icy patches',
+                    matLandscape: 'snow, frosted winter trees, ice'
+                }
+            },
+            'context-autumn-sunset': {
+                tool: 'Pro Context',
+                config: {
+                    mode: 'render',
+                    season: 'autumn',
+                    time: 'sunset',
+                    weather: 'sunny',
+                    sun: 'low',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'wood benches, metal frames',
+                    matGround: 'modern pavement, clean tiles, grass lawn',
+                    matLandscape: 'golden trees, fallen leaves, amber grass'
+                }
+            },
+            'context-rainy-day': {
+                tool: 'Pro Context',
+                config: {
+                    mode: 'render',
+                    season: 'summer',
+                    time: 'day',
+                    weather: 'rain',
+                    sun: 'none',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'concrete benches, plastic details',
+                    matGround: 'wet asphalt, puddles, reflective surface',
+                    matLandscape: 'green trees, lush bushes, manicured lawn'
+                }
+            },
+            'reconstruct-basic': {
+                tool: 'Reconstruct',
+                config: {
+                    season: 'summer',
+                    time: 'day',
+                    weather: 'sunny',
+                    sun: 'left',
+                    refMode: 'style',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'wood benches, metal frames',
+                    matGround: 'modern pavement, clean tiles',
+                    matLandscape: 'green trees, manicured bushes'
+                }
+            },
+            'reconstruct-full': {
+                tool: 'Reconstruct',
+                config: {
+                    season: 'summer',
+                    time: 'day',
+                    weather: 'sunny',
+                    sun: 'left',
+                    refMode: 'full',
+                    people: true,
+                    keepOriginalMaterials: false,
+                    matFurniture: 'glass panels, stainless steel frames, modern facades',
+                    matGround: 'modern pavement, clean tiles',
+                    matLandscape: 'green trees, manicured bushes'
+                }
+            }
+        };
+
+        function generateProContextJson(config) {
+            const staticData = {
+                technical: { "aperture": "f/8", "iso": "100", "perspective": "architectural photography", "type": "full-frame camera" },
+                avoid: ["camera shift", "angle change", "object change", "change angle", "look like 3D render"],
+                quality: { "quality": "ultra-high, hyperrealistic, photoreal", "resolution": "8k", "sharpness": "crisp", "post_processing": "cinematic color grading" }
+            };
+
+            let shadows = "";
+            let type = "";
+            let sunPos = "";
+
+            if (config.time === 'night') shadows = "deep, soft and realistic";
+            else if (['rain', 'storm', 'fog', 'cloudy'].includes(config.weather)) shadows = "soft and realistic";
+            else if (config.time === 'sunset') shadows = "long, high contrast and realistic";
+            else shadows = "deep, dark, high contrast, sharp and realistic";
+            
+            if (config.mode === 'screenshot' && shadows.includes('deep, dark')) shadows = "deep, high contrast, sharp and realistic";
+
+            if (config.sun === 'left') sunPos = config.mode === 'render' ? "from the left" : "the sun shines from the left";
+            else if (config.sun === 'right') sunPos = config.mode === 'render' ? "from the right" : "the sun shines from the right";
+            else if (config.sun === 'low' || config.time === 'sunset') sunPos = config.mode === 'render' ? "low sun" : "low sun, backlight";
+
+            const s = config.season; const t = config.time; const w = config.weather;
+
+            if (t === 'night') {
+                type = `It's a dark, deep, starry night. street lighting and architectural lighting on the facades are on. some windows are lit`;
+                if (w === 'rain') type = "It's a dark, stormy, rainy night. street lighting and architectural lighting on the facades are on. some windows are lit";
+                if (s === 'winter') type = "It's a cozy winter night. christmas lights. snow is falling. street lighting is on";
+            } else if (t === 'evening') {
+                if (w === 'rain') type = "It's a dark, stormy, rainy evening. street lighting and architectural lighting on the facades are on. some windows are lit";
+                else if (s === 'winter') type = "It's a cozy winter evening. christmas lights. snow is falling.";
+                else type = "it's a cozy, clear evening. street lighting and architectural lighting on the facades are on. some windows are lit";
+            } else if (t === 'sunset') {
+                type = `beautiful sunset lighting, ${s}, the sun gradually approaching the horizon. deep long shadows. estimated shooting time: 5-6 p.m.`;
+            } else {
+                if (w === 'sunny') {
+                    if (s === 'winter') type = "It's a sunny winter day. snow on the ground.";
+                    else if (s === 'autumn') type = "It's a bright autumn day. golden leaves. sunlight.";
+                    else type = "a bright summer afternoon. the overall mood is energetic, contrasting, and cheerful.";
+                } else if (w === 'cloudy') {
+                    if (s === 'autumn') type = "It's a stormy autumn day. overcast.";
+                    else type = "It's a cloudy day. soft lighting.";
+                } else if (w === 'rain' || w === 'storm') {
+                    type = "It's a dark, stormy, rainy day.";
+                } else if (w === 'fog') {
+                    type = "It's a cloudy, foggy day.";
+                } else if (w === 'snow') {
+                    type = "It's a winter day. snow is falling heavily.";
+                }
+            }
+
+            let removeDetails = undefined;
+            let addDetails = undefined;
+            const peopleTxt = "delete all the people first. then add people: adults are walking with children, children are running and playing, teenagers are sitting and chatting. everyone is dressed for the weather. remove people who are not dressed for the weather";
+            const natureTxt = "add more trees and bushes";
+            const removeAllTxt = "remove all people";
+
+            if (config.mode === 'render') {
+                if (config.people) addDetails = peopleTxt;
+                else removeDetails = removeAllTxt;
+            } else {
+                if (config.people) addDetails = `${peopleTxt}. ${natureTxt}`;
+                else { removeDetails = removeAllTxt; addDetails = natureTxt; }
+            }
+
+            const materialsBlock = config.keepOriginalMaterials
+                ? { materials: "keep all original materials from the source image unchanged" }
+                : {
+                    materials: {
+                        furniture_materials: config.matFurniture,
+                        ground_materials: config.matGround,
+                        landscape_materials: config.matLandscape
+                    }
+                };
+
+            const finalObj = {
+                technical: staticData.technical,
+                lighting: {
+                    shadows: shadows,
+                    ...(sunPos && config.time !== 'night' && config.sun !== 'none' ? { sun_position: sunPos } : {}), 
+                    type: type
+                },
+                ...materialsBlock
+            };
+
+            if (removeDetails) finalObj.remove_details = removeDetails;
+            if (addDetails) finalObj.add_details = addDetails;
+            finalObj.avoid = staticData.avoid;
+            finalObj.quality = staticData.quality;
+
+            return JSON.stringify(finalObj, null, 4);
+        }
+
+        function generateReconstructJson(config) {
+            const staticData = {
+                task_type: "sketch_to_realistic",
+                technical: { 
+                    "controlnet_model": "lineart + depth_zoe",
+                    "denoising_strength": 0.75, 
+                    "reference_weight": 0.85
+                },
+                avoid: ["blur", "cartoon", "drawing lines visible", "3d render artifact", "low quality", "geometry change", "structural distortion"]
+            };
+
+            let typeDesc = "";
+            let sunDesc = "";
+            let shadowDesc = "";
+            
+            if (config.time === 'night') {
+                typeDesc = "Photorealistic night render. dark sky, city lights active, windows lit.";
+                shadowDesc = "soft artificial shadows";
+            } else if (config.time === 'sunset') {
+                typeDesc = "Golden hour render. warm cinematic lighting, long shadows.";
+                shadowDesc = "long, dramatic shadows";
+                sunDesc = "low sun near horizon";
+            } else {
+                if(config.weather === 'sunny') {
+                     typeDesc = `Realistic ${config.season} day render. high details, sharp focus.`;
+                     shadowDesc = "sharp, high contrast shadows";
+                     sunDesc = config.sun === 'left' ? "sun lighting from left" : "sun lighting from right";
+                } else if (config.weather === 'cloudy') {
+                    typeDesc = "Overcast day render. soft diffused lighting, even tones.";
+                    shadowDesc = "soft ambient occlusion";
+                } else if (config.weather === 'rain') {
+                    typeDesc = "Rainy mood render. wet surfaces, reflections, moody atmosphere.";
+                    shadowDesc = "soft reflections";
+                } else if (config.weather === 'snow') {
+                    typeDesc = "Winter snow render. white surroundings, cold atmosphere.";
+                }
+            }
+
+            let mainPrompt = `Convert this SketchUp / line-drawing sketch into a photorealistic architectural facade. Preserve the exact geometry, proportions, and structure of the original sketch — do not alter the building shape or layout.`;
+            if (config.refMode === 'style') {
+                mainPrompt += ` Apply the materials, textures, and color palette from the reference facade image onto the sketch geometry.`;
+            } else if (config.refMode === 'full') {
+                mainPrompt += ` Fully match the reference image — lighting, materials, atmosphere, and facade detailing — while keeping the sketch geometry intact.`;
+            } else {
+                mainPrompt += ` Keep the exact structure from the sketch. Use the reference only as a hint for material selection.`;
+            }
+            mainPrompt += ` ${typeDesc}`;
+
+            let details = config.people ? "Add realistic people walking and interacting, dressed for the weather. Motion blur on moving people." : "No people. Clean architectural shot. Focus on facade details and vegetation.";
+
+            const finalObj = {
+                "action": "sketch_to_realistic_facade",
+                "input_images": {
+                    "image_1": "SketchUp / line-drawing of the building (primary geometry source)",
+                    "image_2": "Realistic facade reference or alternative angle photo (style & material source)"
+                },
+                "reference_settings": {
+                    "mode": config.refMode,
+                    "use_reference_lighting": config.refMode === 'full',
+                    "preserve_geometry": true,
+                    "description": "Reconstruct sketch into realistic facade using reference materials and style"
+                },
+                "prompt": {
+                    "instruction": mainPrompt,
+                    "atmosphere": typeDesc,
+                    "lighting": { "type": shadowDesc, "sun": sunDesc }
+                },
+                "materials_override": config.keepOriginalMaterials
+                    ? "keep all original materials from the source image unchanged"
+                    : {
+                        "furniture": config.matFurniture,
+                        "ground": config.matGround,
+                        "landscape": config.matLandscape
+                    },
+                "details": details,
+                "technical": staticData.technical
+            };
+
+            return JSON.stringify(finalObj, null, 4);
+        }
+
+        // Example prompts for recommendations
+        const examplePrompts = {
+            'example-1': 'современное здание из стекла и бетона с минималистичным фасадом',
+            'example-2': 'закатное освещение, солнце слева, длинные драматические тени',
+            'example-5': 'взрослые идут с детьми, дети играют, все одеты по погоде',
+            'example-6': 'избегай сдвига камеры, изменения угла, артефактов 3D-рендера',
+            'example-7': 'f/8, ISO 100, архитектурная фотография, 8K, гиперреалистично'
+        };
+
+        function copyExample(exampleId) {
+            const example = examplePrompts[exampleId];
+            if (!example) return;
+
+            navigator.clipboard.writeText(example).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Не удалось скопировать. Попробуйте еще раз.');
+            });
+        }
+
+        // Simple text prompts
+        const simplePrompts = {
+            'simple-summer-day': `Создай фотореалистичный архитектурный рендер летнего солнечного дня. Яркое дневное освещение, солнце слева, глубокие контрастные тени. Зеленые деревья, ухоженный газон, современное мощение. Добавь людей: взрослые идут с детьми, дети играют, все одеты по летней погоде. Избегай сдвига камеры, изменения угла, артефактов 3D-рендера. Качество: ультра-высокое, гиперреалистичное, 8K, четкость максимальная.`,
+            'simple-winter-evening': `Создай атмосферный фотореалистичный рендер зимнего вечера. Темное небо, уличное освещение включено, архитектурная подсветка фасадов, некоторые окна освещены. Идет снег, покрытые снегом дорожки, ледяные участки. Зимние деревья с инеем. Добавь людей, одетых по зимней погоде. Избегай сдвига камеры, изменения угла. Качество: ультра-высокое, гиперреалистичное, 8K.`
+        };
+
+        function copySimplePrompt(promptId) {
+            const prompt = simplePrompts[promptId];
+            if (!prompt) return;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(prompt).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Не удалось скопировать. Попробуйте еще раз.');
+            });
+        }
+
+        function copyScenario(scenarioId) {
+            const scenario = scenarios[scenarioId];
+            if (!scenario) return;
+
+            let jsonStr;
+            if (scenario.tool === 'Pro Context') {
+                jsonStr = generateProContextJson(scenario.config);
+            } else {
+                jsonStr = generateReconstructJson(scenario.config);
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Не удалось скопировать. Попробуйте еще раз.');
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
