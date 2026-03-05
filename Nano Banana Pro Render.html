@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana Pro Context</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        dark: { 950: '#0b0f19', 900: '#111827', 800: '#1f2937', 700: '#374151' },
+                        banana: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0b0f19; color: #e2e8f0; }
+
+        /* --- КНОПКИ (ГЛАВНЫЕ) --- */
+        .btn-interactive {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            border: 1px solid #374151;
+            background-color: #1f2937;
+            color: #9ca3af;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-interactive:hover:not(.active):not(.disabled) {
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+
+        /* СОСТОЯНИЕ АКТИВНОСТИ */
+        .btn-interactive.active {
+            background-color: #f59e0b !important;
+            color: #000000 !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .btn-interactive.disabled {
+            opacity: 0.2;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* --- ЧИПСЫ (МАТЕРИАЛЫ) --- */
+        .chip {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+            background-color: #111827;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .chip:hover:not(.active) {
+            border-color: #9ca3af;
+            color: #d1d5db;
+        }
+
+        .chip.active {
+            background-color: #f59e0b !important;
+            color: #000000 !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* --- UI ELEMENTS --- */
+        .section-title { 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            color: #6b7280; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            margin-bottom: 1rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+
+        .card { 
+            background-color: rgba(17, 24, 39, 0.7); 
+            padding: 1.5rem; 
+            border-radius: 1rem; 
+            border: 1px solid #374151; 
+            backdrop-filter: blur(10px); 
+        }
+
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #111827; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+
+        /* JSON Colors */
+        .json-key { color: #60a5fa; } 
+        .json-string { color: #fbbf24; } 
+    </style>
+</head>
+<body class="min-h-screen py-10 px-8 flex justify-center">
+
+    <div class="w-full max-w-[1600px] grid grid-cols-12 gap-8">
+        
+        <!-- HEADER -->
+        <div class="col-span-12 flex justify-between items-end mb-4 border-b border-dark-700 pb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-900 text-3xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white">Nano Banana <span class="text-banana-500">Pro Context</span></h1>
+                    <p class="text-gray-400 text-sm mt-1">Sketch / Screenshot → Realistic Render & Environment</p>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="px-4 py-2 rounded-lg bg-dark-800 border border-dark-700 text-xs text-gray-400 flex items-center gap-2" id="badge-render">
+                    <i class="fa-solid fa-cube"></i> Рендер
+                </div>
+                <div class="px-4 py-2 rounded-lg bg-dark-800 border border-dark-700 text-xs text-gray-400 flex items-center gap-2" id="badge-screenshot">
+                    <i class="fa-solid fa-image"></i> Скриншот
+                </div>
+            </div>
+        </div>
+
+        <!-- LEFT COLUMN: CONTROLS (7 Cols) -->
+        <div class="col-span-12 lg:col-span-7 space-y-6">
+            
+            <!-- 1. TYPE SELECTION -->
+            <div class="card">
+                <div class="section-title text-banana-500"><i class="fa-solid fa-sliders"></i> Тип генерации</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="btn-interactive p-3 active" id="mode-render" onclick="setMode('render')">
+                        <i class="fa-solid fa-cube mb-1 text-lg"></i>
+                        <span class="text-xs font-bold">Рендер</span>
+                    </div>
+                    <div class="btn-interactive p-3" id="mode-screenshot" onclick="setMode('screenshot')">
+                        <i class="fa-solid fa-image mb-1 text-lg"></i>
+                        <span class="text-xs font-bold">Скриншот</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ENVIRONMENT MATRIX -->
+            <div class="card">
+                <div class="grid grid-cols-4 gap-6">
+                    
+                    <!-- Season -->
+                    <div class="space-y-3">
+                        <div class="section-title text-banana-500"><i class="fa-solid fa-calendar-days"></i> Сезон</div>
+                        <div class="flex flex-col gap-2">
+                            <div class="btn-interactive p-3 active" onclick="setSeason('summer')" id="sea-summer">
+                                <i class="fa-solid fa-sun mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Лето</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setSeason('autumn')" id="sea-autumn">
+                                <i class="fa-brands fa-canadian-maple-leaf mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Осень</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setSeason('winter')" id="sea-winter">
+                                <i class="fa-regular fa-snowflake mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Зима</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setSeason('spring')" id="sea-spring">
+                                <i class="fa-solid fa-seedling mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Весна</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time -->
+                    <div class="space-y-3">
+                        <div class="section-title text-banana-500"><i class="fa-solid fa-clock"></i> Время</div>
+                        <div class="flex flex-col gap-2">
+                            <div class="btn-interactive p-3 active" onclick="setTime('day')" id="time-day">
+                                <i class="fa-solid fa-sun mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">День</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setTime('sunset')" id="time-sunset">
+                                <i class="fa-solid fa-mountain-sun mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Закат</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setTime('evening')" id="time-evening">
+                                <i class="fa-solid fa-house-chimney-window mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Вечер</span>
+                            </div>
+                            <div class="btn-interactive p-3" onclick="setTime('night')" id="time-night">
+                                <i class="fa-solid fa-star mb-1 text-lg"></i>
+                                <span class="text-xs font-bold">Ночь</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather -->
+                    <div class="space-y-3">
+                        <div class="section-title text-banana-500"><i class="fa-solid fa-cloud"></i> Погода</div>
+                        <div class="flex flex-col gap-2" id="weather-container">
+                            <!-- JS Generated -->
+                        </div>
+                    </div>
+
+                    <!-- Sun Position -->
+                    <div class="space-y-3">
+                        <div class="section-title text-banana-500"><i class="fa-solid fa-compass"></i> Свет</div>
+                        <div class="flex flex-col gap-2" id="sun-container">
+                            <!-- JS Generated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. MATERIALS -->
+            <div class="card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="section-title mb-0"><i class="fa-solid fa-cubes"></i> Материалы</div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-gray-400">Оригинальные</span>
+                        <button id="btn-mat-toggle" onclick="toggleKeepMaterials()" class="w-14 h-8 rounded-full bg-dark-700 relative transition-all duration-200 focus:outline-none">
+                            <div id="mat-toggle-circle" class="w-6 h-6 bg-gray-400 rounded-full absolute top-1 left-1 transition-transform duration-200"></div>
+                        </button>
+                    </div>
+                </div>
+                <div id="materials-panel" class="grid grid-cols-3 gap-6 transition-all">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-bold mb-2 block uppercase ml-1">Фасад / Мебель</span>
+                        <div class="flex flex-wrap gap-2" id="chips-furniture"></div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-bold mb-2 block uppercase ml-1">Покрытие (Земля)</span>
+                        <div class="flex flex-wrap gap-2" id="chips-ground"></div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-bold mb-2 block uppercase ml-1">Ландшафт</span>
+                        <div class="flex flex-wrap gap-2" id="chips-landscape"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN (5 Cols) -->
+        <div class="col-span-12 lg:col-span-5 flex flex-col gap-6">
+
+            <!-- PEOPLE TOGGLE -->
+            <div class="card bg-banana-500/5 border-banana-500/20">
+                <div class="section-title text-banana-500"><i class="fa-solid fa-user-group"></i> Детализация</div>
+                <div class="flex items-center justify-between bg-dark-900 p-4 rounded-xl border border-dark-700">
+                    <span class="text-sm font-bold text-gray-300"><i class="fa-solid fa-person-walking mr-2"></i>Люди в кадре</span>
+                    <button id="btn-people-toggle" onclick="togglePeople()" class="w-14 h-8 rounded-full bg-banana-500 relative transition-all duration-200 focus:outline-none shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                        <div id="toggle-circle" class="w-6 h-6 bg-black rounded-full absolute top-1 right-1 transition-transform duration-200"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- OUTPUT JSON -->
+            <div class="flex-1 flex flex-col bg-[#111827] rounded-2xl border border-dark-700 shadow-2xl overflow-hidden relative group">
+                <!-- Toolbar -->
+                <div class="bg-[#1f2937] px-6 py-4 flex justify-between items-center border-b border-dark-700">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-code text-banana-500"></i>
+                        <span class="text-xs font-bold tracking-widest text-gray-300">PROMPT_CONFIG.JSON</span>
+                    </div>
+                    <button onclick="copyToClipboard()" class="bg-banana-500 hover:bg-banana-400 text-dark-900 text-xs font-extrabold px-5 py-2.5 rounded-lg transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:scale-105 active:scale-95 flex items-center">
+                        <i class="fa-regular fa-copy mr-2"></i> COPY JSON
+                    </button>
+                </div>
+                
+                <!-- Code -->
+                <div class="p-6 flex-1 overflow-auto custom-scroll max-h-[500px]">
+                    <pre id="json-output" class="text-sm font-mono leading-relaxed text-gray-300"></pre>
+                </div>
+
+                <!-- Toast -->
+                <div id="toast" class="absolute bottom-8 right-8 bg-green-600 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 transition-all duration-300 translate-y-10 flex items-center gap-3 font-bold">
+                    <i class="fa-solid fa-check-circle"></i> Скопировано!
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC CONSTANTS ---
+        const seasonRules = {
+            summer: ['sunny', 'cloudy', 'rain', 'storm'],
+            autumn: ['sunny', 'cloudy', 'rain', 'fog'],
+            winter: ['sunny', 'cloudy', 'snow'],
+            spring: ['sunny', 'cloudy', 'rain', 'fog']
+        };
+
+        const sunBlockedRules = {
+            time: ['night'], 
+            weather: ['rain', 'storm', 'fog', 'snow'] 
+        };
+
+        const staticData = {
+            technical: { "aperture": "f/8", "iso": "100", "perspective": "architectural photography", "type": "full-frame camera" },
+            avoid: ["camera shift", "angle change", "object change", "change angle", "look like 3D render"],
+            quality: { "quality": "ultra-high, hyperrealistic, photoreal", "resolution": "8k", "sharpness": "crisp", "post_processing": "cinematic color grading" }
+        };
+
+        const materialPresets = {
+            furniture: [
+                { id: 'f1', label: 'Дерево/Металл', val: 'wood benches, metal frames' },
+                { id: 'f2', label: 'Бетон/Пластик', val: 'concrete benches, plastic details' },
+                { id: 'f3', label: 'Камень', val: 'stone benches, granite elements' },
+                { id: 'f4', label: 'Кирпич/Металл', val: 'brick walls, wrought iron fences, metal railings' },
+                { id: 'f5', label: 'Стекло/Сталь', val: 'glass panels, stainless steel frames, modern facades' },
+                { id: 'f6', label: 'Кортен/Дерево', val: 'corten steel panels, natural timber cladding' }
+            ],
+            ground: [
+                { id: 'g1', label: 'Плитка (Урбан)', val: 'modern pavement, clean tiles, grass lawn' },
+                { id: 'g2', label: 'Асфальт', val: 'asphalt road, concrete curbs' },
+                { id: 'g3', label: 'Гравий', val: 'gravel paths, compacted earth' },
+                { id: 'g4', label: 'Газон', val: 'manicured grass lawn, green turf' },
+                { id: 'g5', label: 'Деревянный настил', val: 'wooden decking, timber boardwalk' },
+                { id: 'g6', label: 'Мокрый асфальт', val: 'wet asphalt, puddles, reflective surface' },
+                { id: 'g7', label: 'Снег/Лёд', val: 'snow covered path, icy patches' }
+            ],
+            landscape: [
+                { id: 'l1', label: 'Лето (Зелень)', val: 'green trees, lush bushes, manicured lawn' },
+                { id: 'l2', label: 'Осень (Золото)', val: 'golden trees, fallen leaves, amber grass' },
+                { id: 'l3', label: 'Зима (Снег)', val: 'snow, frosted winter trees, ice' },
+                { id: 'l4', label: 'Весна (Цветение)', val: 'blossoming trees, fresh green leaves, spring flowers' },
+                { id: 'l5', label: 'Хвойный', val: 'conifer trees, pine, spruce, evergreen bushes' },
+                { id: 'l6', label: 'Средиземноморский', val: 'palm trees, olive trees, Mediterranean flora' }
+            ]
+        };
+
+        const weatherDefs = [
+            { id: 'sunny', icon: 'fa-sun', label: 'Ясно' },
+            { id: 'cloudy', icon: 'fa-cloud', label: 'Пасмурно' },
+            { id: 'rain', icon: 'fa-cloud-showers-heavy', label: 'Дождь' },
+            { id: 'storm', icon: 'fa-bolt', label: 'Гроза' },
+            { id: 'fog', icon: 'fa-smog', label: 'Туман' },
+            { id: 'snow', icon: 'fa-snowflake', label: 'Снег' }
+        ];
+
+        const sunDefs = [
+            { id: 'left', icon: 'fa-arrow-left', label: 'Слева' },
+            { id: 'right', icon: 'fa-arrow-right', label: 'Справа' },
+            { id: 'low', icon: 'fa-arrow-down', label: 'Низкое' },
+            { id: 'none', icon: 'fa-circle', label: 'Рассеян.' } 
+        ];
+
+        let state = {
+            mode: 'render', people: true, season: 'summer', time: 'day', weather: 'sunny', sun: 'left',
+            keepOriginalMaterials: false,
+            matFurniture: materialPresets.furniture[0].val,
+            matGround: materialPresets.ground[0].val,
+            matLandscape: materialPresets.landscape[0].val
+        };
+
+        // --- INIT ---
+        function init() {
+            setSeason('summer');
+        }
+
+        // --- SETTERS ---
+        function setMode(m) { 
+            state.mode = m; 
+            updateGroupVisuals('mode', m);
+            updateBadges();
+            generateJson(); 
+        }
+
+        function setSeason(s) { 
+            state.season = s; 
+            updateGroupVisuals('sea', s);
+            validateState(); renderDynamicButtons(); autoSelectMaterials(); generateJson(); 
+        }
+
+        function setTime(t) { 
+            state.time = t; 
+            updateGroupVisuals('time', t);
+            validateState(); renderDynamicButtons(); generateJson(); 
+        }
+
+        function setWeather(w) { 
+            state.weather = w; 
+            validateState(); renderDynamicButtons(); generateJson(); 
+        }
+
+        function setSun(s) { 
+            state.sun = s; 
+            renderDynamicButtons(); generateJson(); 
+        }
+
+        function togglePeople() {
+            state.people = !state.people;
+            const btn = document.getElementById('btn-people-toggle');
+            const circ = document.getElementById('toggle-circle');
+            if(state.people) {
+                btn.style.backgroundColor = '#f59e0b';
+                btn.classList.add('shadow-[0_0_10px_rgba(245,158,11,0.5)]');
+                circ.style.transform = 'translateX(0)';
+                circ.style.backgroundColor = '#000000';
+            } else {
+                btn.style.backgroundColor = '#374151';
+                btn.classList.remove('shadow-[0_0_10px_rgba(245,158,11,0.5)]');
+                circ.style.transform = 'translateX(-24px)';
+                circ.style.backgroundColor = '#9ca3af';
+            }
+            generateJson();
+        }
+
+        function toggleKeepMaterials() {
+            state.keepOriginalMaterials = !state.keepOriginalMaterials;
+            const btn = document.getElementById('btn-mat-toggle');
+            const circ = document.getElementById('mat-toggle-circle');
+            const panel = document.getElementById('materials-panel');
+            if(state.keepOriginalMaterials) {
+                btn.style.backgroundColor = '#f59e0b';
+                btn.classList.add('shadow-[0_0_10px_rgba(245,158,11,0.5)]');
+                circ.style.transform = 'translateX(24px)';
+                circ.style.backgroundColor = '#000000';
+                panel.style.opacity = '0.25';
+                panel.style.pointerEvents = 'none';
+            } else {
+                btn.style.backgroundColor = '#374151';
+                btn.classList.remove('shadow-[0_0_10px_rgba(245,158,11,0.5)]');
+                circ.style.transform = 'translateX(0)';
+                circ.style.backgroundColor = '#9ca3af';
+                panel.style.opacity = '1';
+                panel.style.pointerEvents = 'auto';
+            }
+            generateJson();
+        }
+
+        function setMaterial(cat, val) {
+            if(cat === 'furniture') state.matFurniture = val;
+            if(cat === 'ground') state.matGround = val;
+            if(cat === 'landscape') state.matLandscape = val;
+            renderChips(cat, materialPresets[cat]);
+            generateJson();
+        }
+
+        // --- HELPER: switch active class ---
+        function updateGroupVisuals(prefix, activeId) {
+            const buttons = document.querySelectorAll(`[id^="${prefix}-"]`);
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const target = document.getElementById(`${prefix}-${activeId}`);
+            if(target) target.classList.add('active');
+        }
+
+        function updateBadges() {
+            const renderBadge = document.getElementById('badge-render');
+            const screenBadge = document.getElementById('badge-screenshot');
+            if(state.mode === 'render') {
+                renderBadge.className = 'px-4 py-2 rounded-lg bg-dark-800 border text-xs text-banana-500 border-banana-500/30 flex items-center gap-2';
+                screenBadge.className = 'px-4 py-2 rounded-lg bg-dark-800 border border-dark-700 text-xs text-gray-400 flex items-center gap-2';
+            } else {
+                renderBadge.className = 'px-4 py-2 rounded-lg bg-dark-800 border border-dark-700 text-xs text-gray-400 flex items-center gap-2';
+                screenBadge.className = 'px-4 py-2 rounded-lg bg-dark-800 border text-xs text-banana-500 border-banana-500/30 flex items-center gap-2';
+            }
+        }
+
+        // --- VALIDATION ---
+        function validateState() {
+            const allowedWeather = seasonRules[state.season];
+            if (!allowedWeather.includes(state.weather)) state.weather = allowedWeather[0];
+
+            const isNight = state.time === 'night';
+            const isDiffused = sunBlockedRules.weather.includes(state.weather) || state.weather === 'cloudy';
+            
+            if (isNight || isDiffused) state.sun = 'none';
+            else if (state.sun === 'none' && !isNight) state.sun = 'left';
+        }
+
+        function autoSelectMaterials() {
+            if (state.keepOriginalMaterials) return;
+            const findVal = (arr, id) => arr.find(x => x.id === id)?.val || arr[0].val;
+            if (state.season === 'winter') {
+                state.matLandscape = findVal(materialPresets.landscape, 'l3');
+                state.matGround = findVal(materialPresets.ground, 'g7');
+            } else if (state.season === 'autumn') {
+                state.matLandscape = findVal(materialPresets.landscape, 'l2');
+                state.matGround = findVal(materialPresets.ground, 'g1');
+            } else if (state.season === 'spring') {
+                state.matLandscape = findVal(materialPresets.landscape, 'l4');
+                state.matGround = findVal(materialPresets.ground, 'g1');
+            } else {
+                state.matLandscape = findVal(materialPresets.landscape, 'l1');
+                state.matGround = findVal(materialPresets.ground, 'g1');
+            }
+        }
+
+        // --- DYNAMIC RENDERING ---
+        function renderDynamicButtons() {
+            // Weather
+            const wContainer = document.getElementById('weather-container');
+            wContainer.innerHTML = '';
+            const allowed = seasonRules[state.season];
+            weatherDefs.forEach(opt => {
+                if (allowed.includes(opt.id)) {
+                    const btn = createBtn(opt, state.weather === opt.id, () => setWeather(opt.id));
+                    wContainer.appendChild(btn);
+                }
+            });
+
+            // Sun
+            const sContainer = document.getElementById('sun-container');
+            sContainer.innerHTML = '';
+            const isNight = state.time === 'night';
+            const isDiffused = sunBlockedRules.weather.includes(state.weather) || state.weather === 'cloudy';
+            
+            if (isNight || isDiffused) {
+                sContainer.innerHTML = `<div class="btn-interactive disabled p-3 border-dashed"><span class="text-xs">Рассеянный свет</span></div>`;
+            } else {
+                sunDefs.forEach(opt => {
+                    if (opt.id === 'none') return;
+                    if (opt.id === 'low' && state.time !== 'sunset' && state.season !== 'winter') return;
+                    const btn = createBtn(opt, state.sun === opt.id, () => setSun(opt.id));
+                    sContainer.appendChild(btn);
+                });
+            }
+
+            // Chips
+            renderChips('furniture', materialPresets.furniture);
+            renderChips('ground', materialPresets.ground);
+            renderChips('landscape', materialPresets.landscape);
+        }
+
+        function createBtn(opt, isActive, onClick) {
+            const div = document.createElement('div');
+            div.className = `btn-interactive p-3 ${isActive ? 'active' : ''}`;
+            div.onclick = onClick;
+            div.innerHTML = `<i class="fa-solid ${opt.icon} mb-1 text-lg"></i><span class="text-xs font-bold">${opt.label}</span>`;
+            return div;
+        }
+
+        function renderChips(cat, items) {
+            const con = document.getElementById(`chips-${cat}`);
+            con.innerHTML = '';
+            let cur = cat === 'furniture' ? state.matFurniture : (cat === 'ground' ? state.matGround : state.matLandscape);
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `chip ${item.val === cur ? 'active' : ''}`;
+                el.innerText = item.label;
+                el.onclick = () => setMaterial(cat, item.val);
+                con.appendChild(el);
+            });
+        }
+
+        // --- JSON GENERATION (original Render logic preserved) ---
+        function generateJson() {
+            let shadows = "";
+            let type = "";
+            let sunPos = "";
+
+            if (state.time === 'night') shadows = "deep, soft and realistic";
+            else if (['rain', 'storm', 'fog', 'cloudy'].includes(state.weather)) shadows = "soft and realistic";
+            else if (state.time === 'sunset') shadows = "long, high contrast and realistic";
+            else shadows = "deep, dark, high contrast, sharp and realistic";
+            
+            if (state.mode === 'screenshot' && shadows.includes('deep, dark')) shadows = "deep, high contrast, sharp and realistic";
+
+            if (state.sun === 'left') sunPos = state.mode === 'render' ? "from the left" : "the sun shines from the left";
+            else if (state.sun === 'right') sunPos = state.mode === 'render' ? "from the right" : "the sun shines from the right";
+            else if (state.sun === 'low' || state.time === 'sunset') sunPos = state.mode === 'render' ? "low sun" : "low sun, backlight";
+
+            const s = state.season; const t = state.time; const w = state.weather;
+
+            if (t === 'night') {
+                type = `It's a dark, deep, starry night. street lighting and architectural lighting on the facades are on. some windows are lit`;
+                if (w === 'rain') type = "It's a dark, stormy, rainy night. street lighting and architectural lighting on the facades are on. some windows are lit";
+                if (s === 'winter') type = "It's a cozy winter night. christmas lights. snow is falling. street lighting is on";
+            } else if (t === 'evening') {
+                if (w === 'rain') type = "It's a dark, stormy, rainy evening. street lighting and architectural lighting on the facades are on. some windows are lit";
+                else if (s === 'winter') type = "It's a cozy winter evening. christmas lights. snow is falling.";
+                else type = "it's a cozy, clear evening. street lighting and architectural lighting on the facades are on. some windows are lit";
+            } else if (t === 'sunset') {
+                type = `beautiful sunset lighting, ${s}, the sun gradually approaching the horizon. deep long shadows. estimated shooting time: 5-6 p.m.`;
+            } else {
+                if (w === 'sunny') {
+                    if (s === 'winter') type = "It's a sunny winter day. snow on the ground.";
+                    else if (s === 'autumn') type = "It's a bright autumn day. golden leaves. sunlight.";
+                    else type = "a bright summer afternoon. the overall mood is energetic, contrasting, and cheerful.";
+                } else if (w === 'cloudy') {
+                    if (s === 'autumn') type = "It's a stormy autumn day. overcast.";
+                    else type = "It's a cloudy day. soft lighting.";
+                } else if (w === 'rain' || w === 'storm') {
+                    type = "It's a dark, stormy, rainy day.";
+                } else if (w === 'fog') {
+                    type = "It's a cloudy, foggy day.";
+                } else if (w === 'snow') {
+                    type = "It's a winter day. snow is falling heavily.";
+                }
+            }
+
+            let removeDetails = undefined;
+            let addDetails = undefined;
+            const peopleTxt = "delete all the people first. then add people: adults are walking with children, children are running and playing, teenagers are sitting and chatting. everyone is dressed for the weather. remove people who are not dressed for the weather";
+            const natureTxt = "add more trees and bushes";
+            const removeAllTxt = "remove all people";
+
+            if (state.mode === 'render') {
+                if (state.people) addDetails = peopleTxt;
+                else removeDetails = removeAllTxt;
+            } else {
+                if (state.people) addDetails = `${peopleTxt}. ${natureTxt}`;
+                else { removeDetails = removeAllTxt; addDetails = natureTxt; }
+            }
+
+            const materialsBlock = state.keepOriginalMaterials
+                ? { materials: "keep all original materials from the source image unchanged" }
+                : {
+                    materials: {
+                        furniture_materials: state.matFurniture,
+                        ground_materials: state.matGround,
+                        landscape_materials: state.matLandscape
+                    }
+                };
+
+            const finalObj = {
+                technical: staticData.technical,
+                lighting: {
+                    shadows: shadows,
+                    ...(sunPos && state.time !== 'night' && state.sun !== 'none' ? { sun_position: sunPos } : {}), 
+                    type: type
+                },
+                ...materialsBlock
+            };
+
+            if (removeDetails) finalObj.remove_details = removeDetails;
+            if (addDetails) finalObj.add_details = addDetails;
+            finalObj.avoid = staticData.avoid;
+            finalObj.quality = staticData.quality;
+
+            const jsonStr = JSON.stringify(finalObj, null, 4);
+            document.getElementById('json-output').innerHTML = syntaxHighlight(jsonStr);
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'text-green-400';
+                if (/^"/.test(match)) { if (/:$/.test(match)) cls = 'json-key'; else cls = 'json-string'; }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(document.getElementById('json-output').innerText);
+            const t = document.getElementById('toast');
+            t.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => t.classList.add('opacity-0', 'translate-y-10'), 2000);
+        }
+
+        // Start
+        init();
+        updateBadges();
+    </script>
+</body>
+</html>
