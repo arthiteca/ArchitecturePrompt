@@ -116,7 +116,7 @@
     <div class="hero-glow"></div>
 
     <!-- Content -->
-    <div class="relative z-10 w-full max-w-4xl">
+    <div class="relative z-10 w-full max-w-7xl">
 
         <!-- HEADER / BRANDING -->
         <div class="text-center mb-16">
@@ -134,26 +134,41 @@
             </p>
         </div>
 
-        <!-- QUICK START CARD -->
-        <div class="mb-8">
-            <a href="Getting Started.html" class="tool-card p-6 flex flex-row items-center gap-6 no-underline group bg-banana-500/10 border-banana-500/30">
-                <div class="card-icon w-16 h-16 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-950 text-3xl shadow-[0_0_30px_rgba(245,158,11,0.5)]">
-                    <i class="fa-solid fa-rocket"></i>
+        <!-- ALL CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Card 1: Quick Start -->
+            <a href="Getting Started.html" class="tool-card p-8 flex flex-col gap-6 no-underline group bg-banana-500/10 border-banana-500/30">
+                <div class="flex items-start justify-between">
+                    <div class="card-icon w-14 h-14 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-950 text-2xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <i class="fa-solid fa-arrow-right card-arrow text-gray-500 text-lg mt-3"></i>
                 </div>
-                <div class="flex-1">
-                    <h2 class="text-2xl font-extrabold text-white mb-1">Быстрый старт</h2>
-                    <p class="text-gray-300 text-sm leading-relaxed">
-                        Готовые тестовые сценарии промптов для быстрого начала работы. Нажмите на карточку сценария, чтобы скопировать готовую конфигурацию.
+
+                <div>
+                    <h2 class="text-xl font-extrabold text-white mb-2">Быстрый старт</h2>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Готовые тестовые сценарии промптов для быстрого начала работы. Рекомендации по составлению промптов и примеры для копирования.
                     </p>
                 </div>
-                <i class="fa-solid fa-arrow-right card-arrow text-banana-500 text-xl"></i>
+
+                <div class="flex flex-wrap gap-2">
+                    <span class="pill"><i class="fa-solid fa-lightbulb text-banana-500"></i> Рекомендации</span>
+                    <span class="pill"><i class="fa-solid fa-file-text text-blue-400"></i> Примеры</span>
+                    <span class="pill"><i class="fa-solid fa-code text-emerald-400"></i> JSON</span>
+                    <span class="pill"><i class="fa-solid fa-copy text-purple-400"></i> Копирование</span>
+                </div>
+
+                <div class="flex items-center gap-2 pt-2 border-t border-dark-700">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Типы:</span>
+                    <span class="text-xs font-bold text-banana-500">Текстовые</span>
+                    <span class="text-gray-600 text-xs">•</span>
+                    <span class="text-xs font-bold text-gray-400">JSON</span>
+                </div>
             </a>
-        </div>
 
-        <!-- TOOL CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <!-- Card 1: Pro Context -->
+            <!-- Card 2: Pro Context -->
             <a href="Nano Banana Pro Context.html" class="tool-card p-8 flex flex-col gap-6 no-underline group">
                 <div class="flex items-start justify-between">
                     <div class="card-icon w-14 h-14 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-950 text-2xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
@@ -185,7 +200,7 @@
                 </div>
             </a>
 
-            <!-- Card 2: Reconstruct -->
+            <!-- Card 3: Reconstruct -->
             <a href="Nano Banana Pro Reconstruct.html" class="tool-card p-8 flex flex-col gap-6 no-underline group">
                 <div class="flex items-start justify-between">
                     <div class="card-icon w-14 h-14 bg-banana-500 rounded-2xl flex items-center justify-center text-dark-950 text-2xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
